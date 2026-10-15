@@ -17,7 +17,7 @@
 
 1. Установите [Node.js](https://nodejs.org) (версия LTS).
 2. Создайте бесплатный проект на [supabase.com](https://supabase.com).
-3. В Supabase откройте **SQL Editor**, вставьте содержимое `supabase/schema.sql` и нажмите **Run**.
+3. В Supabase откройте **SQL Editor**, вставьте содержимое `supabase/migrations/` и нажмите **Run**.
 4. В Supabase: **Authentication → URL Configuration** → в *Redirect URLs* добавьте `http://localhost:3000/**`.
 5. Скопируйте `.env.example` в `.env.local` и вставьте URL и Publishable key из **Project Settings → API Keys**.
 6. В терминале в папке проекта:
@@ -42,5 +42,5 @@ src/
   components/             общие компоненты
   lib/                    Supabase-клиенты и типы
   proxy.ts                обновление сессии, защита /dashboard
-supabase/schema.sql       таблицы, права доступа, хранилище
+supabase/migrations/      таблицы, права доступа, хранилище
 ```

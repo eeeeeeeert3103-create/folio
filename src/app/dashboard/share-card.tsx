@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-export function ShareCard({ username, isPublic }: { username: string; isPublic: boolean }) {
-  const [origin, setOrigin] = useState("");
+type Props = { siteUrl: string; username: string; isPublic: boolean };
+
+export function ShareCard({ siteUrl, username, isPublic }: Props) {
   const [copied, setCopied] = useState(false);
-  useEffect(() => setOrigin(window.location.origin), []);
-  const url = `${origin}/${username}`;
+  const url = `${siteUrl}/${username}`;
 
   async function copy() {
     await navigator.clipboard.writeText(url);

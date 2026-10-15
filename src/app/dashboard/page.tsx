@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile, Project } from "@/lib/types";
@@ -32,9 +33,13 @@ export default async function DashboardPage() {
     .order("created_at")
     .returns<Project[]>();
 
+  // Адрес сайта берём из запроса: localhost при разработке, настоящий домен после публикации.
+  const h = await headers();
+  const siteUrl = `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}`;
+
   return (
     <>
-      <ShareCard username={profile.username} isPublic={profile.is_public} />
+      <ShareCard siteUrl={siteUrl} username={profile.username} isPublic={profile.is_public} />
       <ProfileForm profile={profile} />
       <ProjectsEditor projects={projects ?? []} userId={user.id} />
     </>

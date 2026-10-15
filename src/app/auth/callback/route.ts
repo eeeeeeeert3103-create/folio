@@ -5,8 +5,11 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  let next = searchParams.get("next") ?? "/dashboard";
-  if (!next.startsWith("/") || next.startsWith("//")) next = "/dashboard";
+
+  // Пускаем только на страницы своего сайта: «//evil.com» или «/\evil.com»
+  // браузер воспринял бы как чужой адрес.
+  const target = new URL(searchParams.get("next") ?? "/dashboard", origin);
+  const next = target.origin === origin ? target.pathname + target.search : "/dashboard";
 
   if (code) {
     const supabase = await createClient();

@@ -1,11 +1,21 @@
 import Link from "next/link";
+import { LostScene } from "@/components/status-scene";
+import { StatusPage } from "@/components/status-page";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4 text-center">
-      <p className="text-5xl font-semibold">404</p>
-      <p className="text-neutral-600">Такой страницы нет — возможно, адрес изменился или профиль скрыт.</p>
-      <Link href="/" className="btn">На главную</Link>
-    </div>
+    <StatusPage
+      scene={<LostScene />}
+      code="ОШИБКА 404"
+      title="Страница потерялась"
+      text="Ищем-ищем, но не находим. Возможно, адрес изменился, профиль скрыт или в ссылке опечатка."
+    >
+      <Link href="/" className="btn-primary">
+        На главную
+      </Link>
+      <Link href="/dashboard" className="btn">
+        Мой кабинет
+      </Link>
+    </StatusPage>
   );
 }

@@ -2,14 +2,22 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { copyText } from "@/lib/copy";
 
 export function ShareBar({ isOwner, isPublic }: { isOwner: boolean; isPublic: boolean }) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
-    await navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const url = window.location.href;
+    // На телефоне — системное меню «Поделиться» (Telegram, почта и т. д.), на компьютере — копирование.
+    if (navigator.share && window.matchMedia("(pointer: coarse)").matches) {
+      await navigator.share({ title: document.title, url }).catch(() => {});
+      return;
+    }
+    if (await copyText(url)) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   }
 
   return (

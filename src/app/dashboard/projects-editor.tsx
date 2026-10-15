@@ -5,7 +5,8 @@ import { ImageUpload } from "@/components/image-upload";
 import { SubmitButton } from "@/components/submit-button";
 import type { Project } from "@/lib/types";
 import { deleteProject, moveProject, saveProject, type ActionState } from "./actions";
-import { Field } from "./profile-form";
+import { PROJECT_ROLES, SKILLS } from "@/lib/suggestions";
+import { Field, SuggestField } from "./profile-form";
 
 type Media = Record<string, string>;
 
@@ -101,7 +102,7 @@ function ProjectForm({ project, imageUrl, onDone }: FormProps) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field name="title" label="Название" defaultValue={project?.title} required placeholder="Трекер привычек" />
-        <Field name="role" label="Ваша роль" defaultValue={project?.role} placeholder="Frontend, дизайн" />
+        <SuggestField name="role" label="Ваша роль" options={PROJECT_ROLES} multiple defaultValue={project?.role} placeholder="Frontend, дизайн" />
         <Field
           name="summary"
           label="Коротко, одной строкой"
@@ -124,7 +125,14 @@ function ProjectForm({ project, imageUrl, onDone }: FormProps) {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field name="tech" label="Технологии" defaultValue={project?.tech.join(", ")} placeholder="Next.js, PostgreSQL" />
+        <SuggestField
+          name="tech"
+          label="Технологии"
+          options={SKILLS}
+          multiple
+          defaultValue={project?.tech.length ? project.tech.join(", ") + ", " : ""}
+          placeholder="Next.js, PostgreSQL"
+        />
         <Field name="period" label="Когда" defaultValue={project?.period} placeholder="сен — дек 2025" />
         <Field name="url" label="Демо / ссылка" defaultValue={project?.url ?? ""} placeholder="myproject.ru" />
         <Field name="repo_url" label="Код" defaultValue={project?.repo_url ?? ""} placeholder="github.com/me/project" />

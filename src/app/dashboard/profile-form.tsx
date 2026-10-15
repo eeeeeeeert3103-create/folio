@@ -3,6 +3,8 @@
 import { useActionState } from "react";
 import { ImageUpload } from "@/components/image-upload";
 import { SubmitButton } from "@/components/submit-button";
+import { SuggestInput } from "@/components/suggest-input";
+import { CITIES, DEGREES, HEADLINES, SKILLS, UNIVERSITIES } from "@/lib/suggestions";
 import { LINK_LABELS, type Links, type Profile } from "@/lib/types";
 import { saveProfile, type ActionState } from "./actions";
 
@@ -35,17 +37,18 @@ export function ProfileForm({ profile, avatarUrl }: { profile: Profile; avatarUr
             <input id="username" name="username" defaultValue={profile.username} required className="w-full bg-transparent px-1 py-2 text-sm outline-none" />
           </div>
         </div>
-        <Field
+        <SuggestField
           name="headline"
           label="Кто вы"
+          options={HEADLINES}
           defaultValue={profile.headline}
           placeholder="Frontend-разработчик, ищу стажировку"
           className="sm:col-span-2"
         />
-        <Field name="university" label="Вуз" defaultValue={profile.university} placeholder="НИУ ВШЭ" />
-        <Field name="degree" label="Направление" defaultValue={profile.degree} placeholder="Программная инженерия" />
+        <SuggestField name="university" label="Вуз" options={UNIVERSITIES} defaultValue={profile.university} placeholder="НИУ ВШЭ" />
+        <SuggestField name="degree" label="Направление" options={DEGREES} defaultValue={profile.degree} placeholder="Программная инженерия" />
         <Field name="graduation_year" label="Год выпуска" type="number" defaultValue={profile.graduation_year?.toString() ?? ""} placeholder="2027" />
-        <Field name="location" label="Город" defaultValue={profile.location} placeholder="Москва" />
+        <SuggestField name="location" label="Город" options={CITIES} defaultValue={profile.location} placeholder="Москва" />
       </div>
 
       <div>
@@ -61,8 +64,15 @@ export function ProfileForm({ profile, avatarUrl }: { profile: Profile; avatarUr
       </div>
 
       <div>
-        <Field name="skills" label="Навыки" defaultValue={profile.skills.join(", ")} placeholder="React, TypeScript, Figma, SQL" />
-        <p className="hint">Через запятую.</p>
+        <SuggestField
+          name="skills"
+          label="Навыки"
+          options={SKILLS}
+          multiple
+          defaultValue={profile.skills.length ? profile.skills.join(", ") + ", " : ""}
+          placeholder="React, TypeScript, Figma, SQL"
+        />
+        <p className="hint">Начните печатать — появятся подсказки. Несколько навыков — через запятую.</p>
       </div>
 
       <div>
@@ -96,6 +106,18 @@ export function ProfileForm({ profile, avatarUrl }: { profile: Profile; avatarUr
 }
 
 type FieldProps = React.InputHTMLAttributes<HTMLInputElement> & { name: string; label: string };
+
+type SuggestFieldProps = React.ComponentProps<typeof SuggestInput> & { label: string };
+
+// Поле с подписью и подсказками при вводе.
+export function SuggestField({ name, label, className, ...rest }: SuggestFieldProps) {
+  return (
+    <div className={className}>
+      <label className="label" htmlFor={name}>{label}</label>
+      <SuggestInput id={name} name={name} {...rest} />
+    </div>
+  );
+}
 
 export function Field({ name, label, className, ...rest }: FieldProps) {
   return (

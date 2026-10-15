@@ -96,7 +96,7 @@ const projectSchema = (userId: string) =>
     title: text(120).pipe(z.string().min(1, "Укажите название проекта.")),
     summary: text(200),
     description: text(5000),
-    role: text(100),
+    role: text(100).transform((s) => s.replace(/[,\s]+$/, "")), // «Frontend, » → «Frontend»
     period: text(50),
     tech: commaList(30),
     url: link,

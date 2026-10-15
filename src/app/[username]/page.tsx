@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { signMedia } from "@/lib/media";
 import { createClient } from "@/lib/supabase/server";
 import { LINK_LABELS, type Links, type Profile, type Project } from "@/lib/types";
 import { ShareBar } from "./share-bar";
@@ -24,7 +25,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: profile.full_name || profile.username,
     description: profile.headline || profile.bio.slice(0, 160),
-    openGraph: { images: profile.avatar_url ? [profile.avatar_url] : [] },
   };
 }
 
@@ -44,6 +44,8 @@ export default async function PortfolioPage({ params }: Props) {
     supabase.auth.getUser(),
   ]);
   const isOwner = auth.user?.id === profile.id;
+  const media = await signMedia(supabase, [profile.avatar_path, ...(projects ?? []).map((p) => p.image_path)]);
+  const avatarUrl = profile.avatar_path ? media[profile.avatar_path] : null;
 
   const education = [profile.university, profile.degree, profile.graduation_year && `выпуск ${profile.graduation_year}`]
     .filter(Boolean)
@@ -58,9 +60,9 @@ export default async function PortfolioPage({ params }: Props) {
         {/* ─── Шапка ─── */}
         <section className="card print:border-0 print:p-0">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-            {profile.avatar_url ? (
+            {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={profile.avatar_url} alt={profile.full_name} className="size-24 rounded-full object-cover" />
+              <img src={avatarUrl} alt={profile.full_name} className="size-24 rounded-full object-cover" />
             ) : (
               <div className="grid size-24 place-items-center rounded-full bg-neutral-900 text-3xl font-semibold text-white">
                 {(profile.full_name || profile.username).charAt(0).toUpperCase()}
@@ -119,7 +121,7 @@ export default async function PortfolioPage({ params }: Props) {
           {projects && projects.length > 0 ? (
             <div className="space-y-4">
               {projects.map((p) => (
-                <ProjectCard key={p.id} project={p} />
+                <ProjectCard key={p.id} project={p} imageUrl={p.image_path ? media[p.image_path] : null} />
               ))}
             </div>
           ) : (
@@ -143,12 +145,12 @@ export default async function PortfolioPage({ params }: Props) {
   );
 }
 
-function ProjectCard({ project: p }: { project: Project }) {
+function ProjectCard({ project: p, imageUrl }: { project: Project; imageUrl: string | null }) {
   return (
     <article className="card overflow-hidden p-0 print:break-inside-avoid print:border-neutral-300">
-      {p.image_url && (
+      {imageUrl && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={p.image_url} alt={p.title} className="aspect-[16/9] w-full object-cover print:max-h-64" />
+        <img src={imageUrl} alt={p.title} className="aspect-[16/9] w-full object-cover print:max-h-64" />
       )}
       <div className="p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">

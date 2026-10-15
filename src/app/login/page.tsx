@@ -1,29 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState } from "react";
 import { Logo } from "@/components/logo";
-import { createClient } from "@/lib/supabase/client";
+import { SubmitButton } from "@/components/submit-button";
+import { sendMagicLink, type LoginState } from "./actions";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
-  const [error, setError] = useState("");
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setStatus("sending");
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard` },
-    });
-    if (error) {
-      setError(error.message);
-      setStatus("error");
-    } else {
-      setStatus("sent");
-    }
-  }
+  const [state, action] = useActionState<LoginState, FormData>(sendMagicLink, {});
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4">
@@ -31,15 +14,15 @@ export default function LoginPage() {
         <Logo />
       </div>
       <div className="card w-full max-w-sm">
-        {status === "sent" ? (
+        {state.sentTo ? (
           <div className="text-center">
             <h1 className="text-xl font-semibold">Проверьте почту</h1>
             <p className="mt-2 text-sm text-neutral-600">
-              Мы отправили ссылку для входа на <b>{email}</b>. Откройте её в этом же браузере.
+              Мы отправили ссылку для входа на <b>{state.sentTo}</b>. Откройте её в этом же браузере.
             </p>
           </div>
         ) : (
-          <form onSubmit={onSubmit}>
+          <form action={action}>
             <h1 className="text-xl font-semibold">Вход в Folio</h1>
             <p className="mt-1 text-sm text-neutral-600">
               Без пароля: пришлём ссылку на почту. Аккаунт создастся автоматически.
@@ -47,20 +30,11 @@ export default function LoginPage() {
             <label className="label mt-6" htmlFor="email">
               Почта
             </label>
-            <input
-              id="email"
-              type="email"
-              required
-              autoFocus
-              className="input"
-              placeholder="you@university.ru"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            {status === "error" && <p className="mt-2 text-sm text-red-600">{error}</p>}
-            <button className="btn-primary mt-4 w-full" disabled={status === "sending"}>
-              {status === "sending" ? "Отправляем…" : "Получить ссылку"}
-            </button>
+            <input id="email" name="email" type="email" required autoFocus className="input" placeholder="you@university.ru" />
+            {state.error && <p className="mt-2 text-sm text-red-600">{state.error}</p>}
+            <div className="mt-4 [&>button]:w-full">
+              <SubmitButton pendingText="Отправляем…">Получить ссылку</SubmitButton>
+            </div>
           </form>
         )}
       </div>

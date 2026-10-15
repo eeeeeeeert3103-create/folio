@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { signMedia } from "@/lib/media";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile, Project } from "@/lib/types";
 import { Onboarding } from "./onboarding";
@@ -32,6 +33,7 @@ export default async function DashboardPage() {
     .order("sort_order")
     .order("created_at")
     .returns<Project[]>();
+  const media = await signMedia(supabase, [profile.avatar_path, ...(projects ?? []).map((p) => p.image_path)]);
 
   // Адрес сайта берём из запроса: localhost при разработке, настоящий домен после публикации.
   const h = await headers();
@@ -40,8 +42,8 @@ export default async function DashboardPage() {
   return (
     <>
       <ShareCard siteUrl={siteUrl} username={profile.username} isPublic={profile.is_public} />
-      <ProfileForm profile={profile} />
-      <ProjectsEditor projects={projects ?? []} userId={user.id} />
+      <ProfileForm profile={profile} avatarUrl={profile.avatar_path ? media[profile.avatar_path] : null} />
+      <ProjectsEditor projects={projects ?? []} media={media} />
     </>
   );
 }

@@ -7,7 +7,9 @@ import type { Project } from "@/lib/types";
 import { deleteProject, moveProject, saveProject, type ActionState } from "./actions";
 import { Field } from "./profile-form";
 
-export function ProjectsEditor({ projects, userId }: { projects: Project[]; userId: string }) {
+type Media = Record<string, string>;
+
+export function ProjectsEditor({ projects, media }: { projects: Project[]; media: Media }) {
   // null — форма закрыта, "new" — новый проект, иначе id редактируемого.
   const [editing, setEditing] = useState<string | null>(null);
 
@@ -26,7 +28,7 @@ export function ProjectsEditor({ projects, userId }: { projects: Project[]; user
       </div>
 
       <div className="mt-6 space-y-3">
-        {editing === "new" && <ProjectForm userId={userId} onDone={() => setEditing(null)} />}
+        {editing === "new" && <ProjectForm onDone={() => setEditing(null)} />}
 
         {projects.length === 0 && editing !== "new" && (
           <p className="rounded-xl border border-dashed border-neutral-200 py-10 text-center text-sm text-neutral-500">
@@ -36,13 +38,13 @@ export function ProjectsEditor({ projects, userId }: { projects: Project[]; user
 
         {projects.map((p, i) =>
           editing === p.id ? (
-            <ProjectForm key={p.id} project={p} userId={userId} onDone={() => setEditing(null)} />
+            <ProjectForm key={p.id} project={p} imageUrl={p.image_path ? media[p.image_path] : null} onDone={() => setEditing(null)} />
           ) : (
             <div key={p.id} className="flex items-center gap-4 rounded-xl border border-neutral-200 p-3">
               <div className="aspect-[16/9] w-24 shrink-0 overflow-hidden rounded-lg bg-neutral-100">
-                {p.image_url && (
+                {p.image_path && media[p.image_path] && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.image_url} alt="" className="size-full object-cover" />
+                  <img src={media[p.image_path]} alt="" className="size-full object-cover" />
                 )}
               </div>
               <div className="min-w-0 flex-1">
@@ -84,7 +86,9 @@ function IconButton({ label, children, ...rest }: React.ButtonHTMLAttributes<HTM
   );
 }
 
-function ProjectForm({ project, userId, onDone }: { project?: Project; userId: string; onDone: () => void }) {
+type FormProps = { project?: Project; imageUrl?: string | null; onDone: () => void };
+
+function ProjectForm({ project, imageUrl, onDone }: FormProps) {
   const [state, action] = useActionState<ActionState, FormData>(saveProject, {});
   useEffect(() => {
     if (state.ok) onDone();
@@ -93,7 +97,7 @@ function ProjectForm({ project, userId, onDone }: { project?: Project; userId: s
   return (
     <form action={action} className="space-y-4 rounded-xl border border-neutral-900 p-4">
       {project && <input type="hidden" name="id" value={project.id} />}
-      <ImageUpload name="image_url" userId={userId} defaultValue={project?.image_url} />
+      <ImageUpload name="image_path" defaultPath={project?.image_path} defaultUrl={imageUrl} />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field name="title" label="Название" defaultValue={project?.title} required placeholder="Трекер привычек" />

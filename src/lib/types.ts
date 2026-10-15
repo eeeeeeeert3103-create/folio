@@ -16,7 +16,7 @@ export type Profile = {
   graduation_year: number | null;
   location: string;
   bio: string;
-  avatar_url: string | null;
+  avatar_path: string | null;
   skills: string[];
   links: Links;
   contact_email: string;
@@ -34,7 +34,7 @@ export type Project = {
   tech: string[];
   url: string | null;
   repo_url: string | null;
-  image_url: string | null;
+  image_path: string | null;
   sort_order: number;
 };
 

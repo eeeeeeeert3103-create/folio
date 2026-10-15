@@ -1,18 +1,19 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { uploadImage } from "@/app/dashboard/actions";
 
 type Props = {
   name: string;
-  userId: string;
-  defaultValue?: string | null;
+  defaultPath?: string | null;
+  defaultUrl?: string | null;
   shape?: "circle" | "wide";
 };
 
-// Загружает картинку в Supabase Storage и кладёт её адрес в скрытое поле формы.
-export function ImageUpload({ name, userId, defaultValue, shape = "wide" }: Props) {
-  const [url, setUrl] = useState(defaultValue ?? "");
+// Отправляет картинку на сервер и кладёт путь к ней в скрытое поле формы.
+export function ImageUpload({ name, defaultPath, defaultUrl, shape = "wide" }: Props) {
+  const [path, setPath] = useState(defaultPath ?? "");
+  const [preview, setPreview] = useState(defaultUrl ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const input = useRef<HTMLInputElement>(null);
@@ -25,29 +26,35 @@ export function ImageUpload({ name, userId, defaultValue, shape = "wide" }: Prop
 
     setBusy(true);
     setError("");
-    const supabase = createClient();
-    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${userId}/${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from("media").upload(path, file, { contentType: file.type });
+    const fd = new FormData();
+    fd.append("file", file);
+    const result = await uploadImage(fd).catch(() => ({ error: "Не получилось загрузить файл." }) as const);
     setBusy(false);
-    if (error) return setError(error.message);
-    setUrl(supabase.storage.from("media").getPublicUrl(path).data.publicUrl);
+    if ("error" in result && result.error) return setError(result.error);
+    if ("path" in result && result.path) {
+      setPath(result.path);
+      setPreview(result.url ?? "");
+    }
   }
 
-  const box =
-    shape === "circle" ? "size-20 rounded-full" : "aspect-[16/9] w-full max-w-xs rounded-xl";
+  function clear() {
+    setPath("");
+    setPreview("");
+  }
+
+  const box = shape === "circle" ? "size-20 rounded-full" : "aspect-[16/9] w-full max-w-xs rounded-xl";
 
   return (
     <div className="flex items-center gap-4">
-      <input type="hidden" name={name} value={url} />
+      <input type="hidden" name={name} value={path} />
       <button
         type="button"
         onClick={() => input.current?.click()}
         className={`${box} grid shrink-0 place-items-center overflow-hidden border border-dashed border-neutral-300 bg-neutral-50 text-xs text-neutral-500 transition hover:border-neutral-500`}
       >
-        {url ? (
+        {preview ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={url} alt="" className="size-full object-cover" />
+          <img src={preview} alt="" className="size-full object-cover" />
         ) : busy ? (
           "Загрузка…"
         ) : (
@@ -56,10 +63,10 @@ export function ImageUpload({ name, userId, defaultValue, shape = "wide" }: Prop
       </button>
       <div className="flex flex-col items-start gap-1 text-sm">
         <button type="button" className="font-medium underline-offset-2 hover:underline" onClick={() => input.current?.click()} disabled={busy}>
-          {busy ? "Загрузка…" : url ? "Заменить" : "Выбрать файл"}
+          {busy ? "Загрузка…" : path ? "Заменить" : "Выбрать файл"}
         </button>
-        {url && (
-          <button type="button" className="text-neutral-500 hover:underline" onClick={() => setUrl("")}>
+        {path && (
+          <button type="button" className="text-neutral-500 hover:underline" onClick={clear}>
             Убрать
           </button>
         )}

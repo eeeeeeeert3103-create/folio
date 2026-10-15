@@ -14,7 +14,7 @@ const LINK_PLACEHOLDERS: Record<keyof Links, string> = {
   website: "mysite.ru",
 };
 
-export function ProfileForm({ profile }: { profile: Profile }) {
+export function ProfileForm({ profile, avatarUrl }: { profile: Profile; avatarUrl: string | null }) {
   const [state, action] = useActionState<ActionState, FormData>(saveProfile, {});
 
   return (
@@ -24,7 +24,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
         <p className="text-sm text-neutral-500">То, что работодатель увидит первым.</p>
       </div>
 
-      <ImageUpload name="avatar_url" userId={profile.id} defaultValue={profile.avatar_url} shape="circle" />
+      <ImageUpload name="avatar_path" defaultPath={profile.avatar_path} defaultUrl={avatarUrl} shape="circle" />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field name="full_name" label="Имя и фамилия" defaultValue={profile.full_name} required />

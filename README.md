@@ -1,6 +1,20 @@
 # Folio
 
+[Русский](README.md) · [English](README.en.md)
+
+[![Демо](https://img.shields.io/badge/демо-folio--mu--jet.vercel.app-000?logo=vercel)](https://folio-mu-jet.vercel.app)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Next.js](https://img.shields.io/badge/Next.js-16-000?logo=nextdotjs)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=fff)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38BDF8?logo=tailwindcss&logoColor=fff)
+
 Платформа, где студенты собирают портфолио и отправляют его работодателю одной ссылкой или PDF.
+
+![Главная страница Folio](docs/screenshot-home.png)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Feeeeeeeert3103-create%2Ffolio&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY&envDescription=Supabase%20Project%20Settings%20%E2%86%92%20API%20Keys)
+
+Перед деплоем создайте проект в Supabase и примените миграции (шаги 2–4 ниже).
 
 **Сайт:** https://folio-mu-jet.vercel.app
 
@@ -51,6 +65,7 @@ src/
   lib/                    Supabase-клиент (только серверный), картинки, типы
   proxy.ts                сессия, защита /dashboard, Content-Security-Policy
 supabase/migrations/      таблицы, права доступа, хранилище, лимиты
+```
 
 ## Безопасность
 
@@ -67,4 +82,7 @@ npm run lint
 npm run typecheck
 npx supabase db advisors --linked
 ```
-```
+
+## Лицензия
+
+[MIT](LICENSE)

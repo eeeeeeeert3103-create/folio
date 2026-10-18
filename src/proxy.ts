@@ -5,16 +5,20 @@ const isDev = process.env.NODE_ENV !== "production";
 
 // Content-Security-Policy: браузер выполнит только скрипты с одноразовым nonce,
 // который сервер выдаёт на каждый запрос. Чужой внедрённый скрипт его не знает.
+// Капча Cloudflare Turnstile грузит свой скрипт и рамку — разрешаем их, только если она включена.
+const captcha = process.env.TURNSTILE_SITE_KEY ? " https://challenges.cloudflare.com" : "";
+
 function contentSecurityPolicy(nonce: string) {
   const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   return [
     "default-src 'self'",
     // 'unsafe-eval' только при разработке: он нужен инструментам отладки React.
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${captcha}${isDev ? " 'unsafe-eval'" : ""}`,
     "style-src 'self' 'unsafe-inline'",
     `img-src 'self' data: blob: ${supabase}`,
     "font-src 'self'",
-    `connect-src 'self'${isDev ? " ws:" : ""}`,
+    `connect-src 'self'${captcha}${isDev ? " ws:" : ""}`,
+    `frame-src 'self'${captcha}`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

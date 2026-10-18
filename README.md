@@ -34,7 +34,7 @@
 ## Публикация
 
 ```bash
-npx vercel deploy --prod
+npx vercel@latest deploy --prod
 ```
 
 ## Структура

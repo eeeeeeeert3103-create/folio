@@ -4,7 +4,15 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { detectImageType, MEDIA_BUCKET, MEDIA_MAX_BYTES, MEDIA_PATH_RE, removeMedia, signMedia } from "@/lib/media";
+import {
+  detectImageType,
+  MEDIA_BUCKET,
+  MEDIA_MAX_BYTES,
+  MEDIA_PATH_RE,
+  removeMedia,
+  removeOrphanMedia,
+  signMedia,
+} from "@/lib/media";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionState = { error?: string; ok?: boolean };
@@ -275,9 +283,16 @@ export async function uploadImage(fd: FormData): Promise<UploadResult> {
   const type = detectImageType(bytes);
   if (!type) return { error: "Подходят только PNG, JPG, WEBP или GIF." };
 
+  // Заодно убираем свои брошенные загрузки, чтобы они не занимали место и квоту.
+  await removeOrphanMedia(supabase, user.id);
+
   const path = `${user.id}/${crypto.randomUUID()}.${type.ext}`;
   const { error } = await supabase.storage.from(MEDIA_BUCKET).upload(path, bytes, { contentType: type.mime });
   if (error) {
+    // Квоту проверяет политика хранилища (см. миграцию upload_quota) — она отвечает отказом в доступе.
+    if (/row-level security/i.test(error.message)) {
+      return { error: "Достигнут лимит загрузок: не больше 100 картинок в сутки. Попробуйте завтра." };
+    }
     console.error("Ошибка загрузки:", error);
     return { error: "Не получилось загрузить файл. Попробуйте ещё раз." };
   }

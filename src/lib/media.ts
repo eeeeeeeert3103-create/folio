@@ -39,3 +39,24 @@ export async function removeMedia(supabase: SupabaseClient, paths: (string | nul
   const list = paths.filter((p): p is string => !!p);
   if (list.length > 0) await supabase.storage.from(MEDIA_BUCKET).remove(list);
 }
+
+// Картинки, которые загрузили, но так и не сохранили в профиль или проект, — мусор.
+// Удаляем те, что старше суток: свежие могут ждать, пока человек допишет форму.
+const ORPHAN_AGE_MS = 24 * 60 * 60 * 1000;
+
+export async function removeOrphanMedia(supabase: SupabaseClient, userId: string) {
+  const [{ data: files }, { data: profile }, { data: projects }] = await Promise.all([
+    supabase.storage.from(MEDIA_BUCKET).list(userId, { limit: 1000, sortBy: { column: "created_at", order: "asc" } }),
+    supabase.from("profiles").select("avatar_path").eq("id", userId).maybeSingle(),
+    supabase.from("projects").select("image_path").eq("user_id", userId),
+  ]);
+  if (!files) return;
+
+  const used = new Set([profile?.avatar_path, ...(projects ?? []).map((p) => p.image_path)].filter(Boolean));
+  const cutoff = Date.now() - ORPHAN_AGE_MS;
+  const orphans = files
+    .map((f) => ({ path: `${userId}/${f.name}`, created: f.created_at ? Date.parse(f.created_at) : Date.now() }))
+    .filter((f) => MEDIA_PATH_RE.test(f.path) && !used.has(f.path) && f.created < cutoff)
+    .map((f) => f.path);
+  await removeMedia(supabase, orphans);
+}

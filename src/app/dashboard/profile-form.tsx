@@ -91,10 +91,17 @@ export function ProfileForm({ profile, avatarUrl }: { profile: Profile; avatarUr
         </div>
       </div>
 
-      <label className="flex items-center gap-3 text-sm">
-        <input type="checkbox" name="is_public" defaultChecked={profile.is_public} className="size-4 accent-neutral-900" />
-        Страница видна всем, у кого есть ссылка
-      </label>
+      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+        <label className="flex items-start gap-3 text-sm font-medium">
+          <input type="checkbox" name="is_public" defaultChecked={profile.is_public} className="size-4 accent-neutral-900" />
+          <span>Опубликовать страницу в интернете</span>
+        </label>
+        <p className="ml-7 mt-2 text-sm text-neutral-600">
+          При публикации всем будут доступны имя, образование, город, описание, навыки, проекты, загруженные изображения,
+          почта для связи и добавленные ссылки. Страницу могут переслать или скопировать; она также может появиться
+          в поисковике. Скрытие страницы не отзывает уже созданные временные ссылки на изображения мгновенно.
+        </p>
+      </div>
 
       <div className="flex items-center gap-4 border-t border-neutral-100 pt-6">
         <SubmitButton>Сохранить профиль</SubmitButton>

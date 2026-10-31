@@ -27,7 +27,7 @@ Before deploying, create a Supabase project and apply the migrations (steps 2–
 - Dashboard: profile, avatar, skills, links, projects with cover images, project ordering
 - Public page at `/username` to share with employers
 - "PDF" button: a clean print version you can save as PDF
-- Hide your profile at any time
+- Profiles are private by default; publishing is an explicit dashboard choice
 
 ## Run locally
 

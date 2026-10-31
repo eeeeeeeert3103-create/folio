@@ -71,7 +71,7 @@ body {
 .feature-card:hover { transform: translateY(-3px); border-color: #ddd6fe; box-shadow: 0 14px 36px rgba(49, 46, 129, .08); }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
 }
 
 @page {

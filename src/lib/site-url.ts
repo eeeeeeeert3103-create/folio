@@ -2,10 +2,9 @@ const PRODUCTION_URL = "https://folio-mu-jet.vercel.app";
 
 // Build share and auth links from deployment configuration, never from the Host header.
 export function getSiteUrl(): string {
-  const configured =
-    process.env.FOLIO_SITE_URL ??
-    process.env.VERCEL_PROJECT_PRODUCTION_URL ??
-    process.env.VERCEL_URL;
+  const configured = process.env.VERCEL_ENV === "preview"
+    ? process.env.VERCEL_URL ?? process.env.FOLIO_SITE_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL
+    : process.env.FOLIO_SITE_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
   const fallback = process.env.NODE_ENV === "production" ? PRODUCTION_URL : "http://localhost:3000";
 
   if (!configured) return fallback;

@@ -36,6 +36,7 @@
 3. В Supabase откройте **SQL Editor**, вставьте содержимое `supabase/migrations/` и нажмите **Run**.
 4. В Supabase: **Authentication → URL Configuration** → в *Redirect URLs* добавьте `http://localhost:3000/**`.
 5. Скопируйте `.env.example` в `.env.local` и вставьте URL и Publishable key из **Project Settings → API Keys**.
+   Для постоянного домена задайте `FOLIO_SITE_URL` в `.env.local` и переменных окружения Vercel.
 6. В терминале в папке проекта:
 
    ```bash

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { signMedia } from "@/lib/media";
+import { getSiteUrl } from "@/lib/site-url";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile, Project } from "@/lib/types";
 import { Onboarding } from "./onboarding";
@@ -35,9 +35,7 @@ export default async function DashboardPage() {
     .returns<Project[]>();
   const media = await signMedia(supabase, [profile.avatar_path, ...(projects ?? []).map((p) => p.image_path)]);
 
-  // Адрес сайта берём из запроса: localhost при разработке, настоящий домен после публикации.
-  const h = await headers();
-  const siteUrl = `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}`;
+  const siteUrl = getSiteUrl();
 
   return (
     <>

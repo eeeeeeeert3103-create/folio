@@ -1,7 +1,7 @@
 "use server";
 
-import { headers } from "next/headers";
 import { z } from "zod";
+import { getSiteUrl } from "@/lib/site-url";
 import { createClient } from "@/lib/supabase/server";
 
 export type LoginState = { error?: string; sentTo?: string };
@@ -18,9 +18,7 @@ export async function sendMagicLink(_: LoginState, fd: FormData): Promise<LoginS
   const captchaToken = String(fd.get("captcha") ?? "").slice(0, 4096) || undefined;
   if (process.env.TURNSTILE_SITE_KEY && !captchaToken) return { error: "Подтвердите, что вы не робот." };
 
-  // Next.js сам отклоняет серверные действия с чужого Origin, так что ему можно доверять.
-  const h = await headers();
-  const origin = h.get("origin") ?? `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}`;
+  const origin = getSiteUrl();
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({

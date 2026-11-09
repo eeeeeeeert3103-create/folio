@@ -103,7 +103,7 @@ export default async function PortfolioPage({ params }: Props) {
 
         {/* ─── Навыки ─── */}
         {profile.skills.length > 0 && (
-          <section className="mt-6 print:mt-8">
+          <section className="mt-6 print:mt-4">
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-500">Навыки</h2>
             <div className="flex flex-wrap gap-2">
               {profile.skills.map((s) => (
@@ -116,10 +116,10 @@ export default async function PortfolioPage({ params }: Props) {
         )}
 
         {/* ─── Проекты ─── */}
-        <section className="mt-10">
+        <section className="mt-10 print:mt-5">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-500">Проекты</h2>
           {projects && projects.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-4 print:space-y-2">
               {projects.map((p) => (
                 <ProjectCard key={p.id} project={p} imageUrl={p.image_path ? media[p.image_path] : null} />
               ))}
@@ -147,28 +147,28 @@ export default async function PortfolioPage({ params }: Props) {
 
 function ProjectCard({ project: p, imageUrl }: { project: Project; imageUrl: string | null }) {
   return (
-    <article className="card overflow-hidden p-0 print:break-inside-avoid print:border-neutral-300">
+    <article className="card overflow-hidden p-0 print:break-inside-auto print:border-neutral-300">
       {imageUrl && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={imageUrl} alt={p.title} className="aspect-[16/9] w-full object-cover print:max-h-64" />
       )}
-      <div className="p-6">
+      <div className="p-6 print:p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <h3 className="text-xl font-semibold">{p.title}</h3>
           {p.period && <span className="text-sm text-neutral-500">{p.period}</span>}
         </div>
         {p.role && <p className="mt-1 text-sm text-neutral-500">Роль: {p.role}</p>}
-        {p.summary && <p className="mt-3 font-medium text-neutral-800">{p.summary}</p>}
-        {p.description && <p className="mt-3 whitespace-pre-line leading-relaxed text-neutral-700">{p.description}</p>}
+        {p.summary && <p className="mt-3 print:mt-2 font-medium text-neutral-800">{p.summary}</p>}
+        {p.description && <p className="mt-3 print:mt-2 whitespace-pre-line leading-relaxed text-neutral-700">{p.description}</p>}
         {p.tech.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-1.5">
+          <div className="mt-4 print:mt-2 flex flex-wrap gap-1.5">
             {p.tech.map((t) => (
               <span key={t} className="chip">{t}</span>
             ))}
           </div>
         )}
         {(p.url || p.repo_url) && (
-          <div className="mt-5 flex gap-4 text-sm font-medium">
+          <div className="mt-5 print:mt-3 flex gap-4 text-sm font-medium">
             {p.url && (
               <a href={p.url} target="_blank" rel="noopener noreferrer" className="underline-offset-4 hover:underline">
                 Демо ↗
